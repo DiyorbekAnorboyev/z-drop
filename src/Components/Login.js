@@ -1,49 +1,57 @@
-import { signInWithPopup } from "firebase/auth";
-import React from "react";
-import { useDispatch } from "react-redux";
-import styled from "styled-components";
-import { auth, provider } from "../firebase/firebase";
-import { setLogIn } from "../Slices/user/userSlice";
+import React, { useEffect, useState } from "react";
+import { auth } from "../firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
+import "./Register.css"
+function SignIn() {
+  const [isAuth, setIsAuth] = useState('')
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const handleClick = () => {
+    signInWithEmailAndPassword(auth, email, password).then((data) => {
+      setIsAuth(data.user.email)
+      localStorage.setItem("email", data.user.email)
+    }).catch(err => alert(err.message))
+  }
 
-function Login() {
-  const dispatch = useDispatch();
-
-  const LoginwithGoogle = async () => {
-    await signInWithPopup(auth, provider).then((res) => {
-      let user = res.user;
-
-      dispatch(setLogIn({ uid: user.uid, photo: user.photoURL }));
-    });
-  };
+  useEffect(() => {
+    setIsAuth(localStorage.getItem('email'))
+  }, [])
 
   return (
-    <Container>
-      <Button onClick={LoginwithGoogle}>Sign In with Google</Button>
-    </Container>
+    <div className="">
+
+      <div className="d-flex justify-content-center align-items-center h-100vh">
+        <div className="d-flex w-50">
+          <div className="w-50 ">
+            <img src="./dropbox.jpg" className="images" alt="" />
+          </div>
+          <div class="w-50">
+
+
+            <h1 className="text-center mb-4">
+              <img className="logo" src="https://static-00.iconduck.com/assets.00/dropbox-icon-2048x2048-rjt8u5st.png" alt="" />
+              Login
+            </h1>
+            <div className="p-3 bg-light rounded">
+              <div class="input-container form-floating mb-3">
+                <input type="email" onChange={e => setEmail(e.target.value)} required id="floatingInput" />
+                <label for="floatingInput">Email address</label>
+              </div>
+              <div class="input-container form-floating mb-3">
+                <input type="password" onChange={e => setPassword(e.target.value)} required id="floatingPassword" />
+                <label for="floatingPassword">Password</label>
+              </div>
+              <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-primary" type="button" onClick={handleClick}>Sign In</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default Login;
-
-const Container = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Button = styled.button`
-  font-weight: 600;
-  padding: 15px 20px;
-  border: none;
-  cursor: pointer;
-  border-radius: 15px;
-  transition: all 200ms ease-out;
-  :hover {
-    transform: scale(1.09);
-  }
-`;
+export default SignIn;

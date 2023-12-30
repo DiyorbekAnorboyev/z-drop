@@ -12,6 +12,7 @@ import PhotoDisplay from "./Components/photoDisplay";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUid, setLogIn, setLogOut } from "./Slices/user/userSlice";
 import Login from "./Components/Login";
+import SignUp from "./Components/SignUp";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebase";
 
@@ -47,7 +48,11 @@ function App() {
           <PhotoDisplay />
         </>
       ) : (
-        <Login />
+        <div className="d-flex w-100">
+          <Login />
+          <SignUp />
+        </div>
+
       )}
     </Router>
   );

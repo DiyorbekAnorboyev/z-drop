@@ -4,9 +4,19 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { selectPhoto } from "../Slices/user/userSlice";
 import { Link } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
 
 function Header() {
   const photo = useSelector(selectPhoto);
+
+  const logout = () => {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      console.log("log out");
+    }).catch((error) => {
+      console.log(error);
+    });
+  };
 
   return (
     <Container>
@@ -22,6 +32,7 @@ function Header() {
           <RightSection>
             <Avatar src={photo} />
           </RightSection>
+          <button className='btn btn-danger' onClick={() => logout()}>Logout</button>
         </RightContainer>
       </Wrapper>
     </Container>
