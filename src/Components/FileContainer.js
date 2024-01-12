@@ -4,6 +4,17 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { setFolder } from "../Slices/channel/channelSlice";
+import {
+  deleteFolder,
+  setPhotoDisplay,
+} from "../Slices/photodisplay/photoSlice";
+import db from "../firebase/firebase";
+import { storage } from "../firebase/firebase";
+import { deleteDoc, doc } from "firebase/firestore";
+import { collection } from "firebase/firestore";
+import { getDownloadURL } from "firebase/storage";
+
+import { ref, deleteObject } from "firebase/storage";
 
 function FileContainer({ title, id }) {
   const dispatch = useDispatch();
@@ -15,11 +26,37 @@ function FileContainer({ title, id }) {
       navigate(`/folder/${title}/${id}`);
     }
   };
+
+  const handleFolderDelete = async (folderId) => {
+    try {
+      const folderDocRef = doc(db, "folder", folderId);
+      await deleteDoc(folderDocRef);
+      console.log("Successfully deleted folder from Firestore");
+    } catch (error) {
+      console.error("Error deleting folder:", error);
+    }
+  };
+
   return (
-    <Container onClick={SelectChannel}>
-      <Folder />
-      <span>{title}</span>
-    </Container>
+    <>
+      <Container>
+        <div className="d-flex justify-content-space-between w-100">
+          <div onClick={SelectChannel} className="w-100">
+            <Folder />
+            <span>{title}</span>
+          </div>
+          <div className="w-100">
+            <button className="btn btn-outline-danger"
+              onClick={() => {
+                handleFolderDelete(id);
+              }}
+            >
+              delete
+            </button>
+          </div>
+        </div>
+      </Container>
+    </>
   );
 }
 

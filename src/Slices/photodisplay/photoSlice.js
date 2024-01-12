@@ -13,10 +13,13 @@ const photoSlice = createSlice({
       state.title = action.payload.title;
       state.photo = action.payload.photo;
     },
+    deleteFolder: (state, action) => {
+      return state.filter((folder) => folder.id !== action.payload);
+    },
   },
 });
 
-export const { setPhotoDisplay } = photoSlice.actions;
+export const { setPhotoDisplay, deleteFolder } = photoSlice.actions;
 
 export const selectPhotoDisplay = (state) => state.photos.photo;
 export const selectTitleDisplay = (state) => state.photos.title;

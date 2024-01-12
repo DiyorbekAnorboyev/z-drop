@@ -1,23 +1,83 @@
 import { InsertPhoto } from "@mui/icons-material";
-import React from "react";
+import { useRef } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { setPhotoDisplay } from "../Slices/photodisplay/photoSlice";
+import db from "../firebase/firebase";
+import { storage } from "../firebase/firebase";
+import { deleteDoc, doc } from "firebase/firestore";
 
-function FileList({ img, title }) {
+import { ref, deleteObject, getDownloadURL } from "firebase/storage";
+
+function FileList({ img, title, id }) {
   const dispatch = useDispatch();
 
   const PhotoSelector = () => {
     dispatch(setPhotoDisplay({ photo: img, title: title }));
   };
+
+  const handleImageDelete = async (folderId) => {
+    try {
+      const folderDocRef = doc(db, "post", folderId);
+      await deleteDoc(folderDocRef);
+
+      console.log("Successfully deleted folder from Firestore");
+      const folderStorageRef = ref(storage, `post/${folderId}`);
+      await deleteObject(folderStorageRef);
+      console.log("Successfully deleted folder from Firebase Storage");
+    } catch (error) {
+      console.error("Error deleting folder:", error);
+    }
+  };
+
+  const downloadUrlRef = useRef(null);
+
+  const handleButtonClick = async (fileId) => {
+    const filePath = `post/${fileId}/image`;
+    const fileRef = ref(storage, filePath);
+
+    try {
+      const url = await getDownloadURL(fileRef);
+      downloadUrlRef.current.value = url;
+      downloadUrlRef.current.select();
+      document.execCommand("copy");
+      console.log("Download URL copied:", url);
+    } catch (error) {
+      console.error("Error getting download URL:", error);
+    }
+  };
+
   return (
     <Container>
       <PhotoContainer onClick={PhotoSelector}>
         <img src={img} alt="" />
       </PhotoContainer>
       <PhotoTitle>
-        <InsertPhoto />
-        <span>{title}</span>
+        <div className="w-100 d-flex justify-content-space-between">
+          <div className="w-75">
+            <InsertPhoto />
+            <span>{title}</span>
+          </div>
+          <div className="w-100 d-flex gap-1">
+            <div>
+              <button className="btn btn-success" onClick={() => handleButtonClick(id)}>
+                Copy
+              </button>
+              <input
+                ref={downloadUrlRef}
+                type="text"
+                readOnly
+                style={{ position: "absolute", left: "-9999px" }}
+              />
+            </div>
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => handleImageDelete(id)}
+            >
+              delete{" "}
+            </button>
+          </div>
+        </div>
       </PhotoTitle>
     </Container>
   );

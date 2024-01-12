@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FileList from "./FileList";
 import FileContainer from "./FileContainer";
 import { useDispatch } from "react-redux";
 import { setBoolean } from "../Slices/Bool/boolSlice";
 import db from "../firebase/firebase";
+import {storage} from "../firebase/firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { setFolder } from "../Slices/channel/channelSlice";
+import { deleteFolder } from "../Slices/photodisplay/photoSlice";
+
+import { ref, deleteObject,} from "firebase/storage"
 
 function Drive() {
   const dispatch = useDispatch();
   const [folders, setFolders] = useState([]);
   const [fileData, setFileData] = useState([]);
+  const [deleted, setDeleted] = useState("")
+  const [imageData, setImageData] = useState([])
 
   useEffect(() => {
     dispatch(setFolder({ folderId: null, folderName: null }));
